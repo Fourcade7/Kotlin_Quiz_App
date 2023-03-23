@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.pr7.kotlin_quiz_app.data.model.QuestionModel
 import com.pr7.kotlin_quiz_app.data.repository.QuestionRepository
 import com.pr7.kotlin_quiz_app.databinding.ActivityMainBinding
+import ir.mahozad.android.PieChart
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -26,9 +27,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         questionRepository = QuestionRepository()
         arrayList = questionRepository.getAllQuestions()
-        //arrayList.shuffle()
+        arrayList.shuffle()
 
         setQuestions()
+
+
 
         binding.apply {
             textviewnext.setOnClickListener {
@@ -56,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             checkanswerlimit()
             imageviewquestion.setImageResource(questionModel.image)
+            textviewquestion.text=questionModel.question
             val arraylist= arrayListOf(
                 questionModel.option1,
                 questionModel.option2,
@@ -97,9 +101,30 @@ class MainActivity : AppCompatActivity() {
     fun endgame(){
         binding.apply {
             linearlay1.gone()
+            pieChart.visible()
             textviewnext.text="restart ?"
             textviewtrueorfalseanswer.visible()
-            textviewtrueorfalseanswer.text="True $trueanswer\nFalse $falseanswer"
+
+
+
+            var all:Float=trueanswer.toFloat()+falseanswer.toFloat()
+            var t:Float=trueanswer.toFloat()/arrayList.size
+            var f:Float=falseanswer.toFloat()/arrayList.size
+            var b=(arrayList.size-all)/arrayList.size
+
+
+
+            textviewtrueorfalseanswer.text="True $trueanswer\nFalse $falseanswer   t=$t f=$f"
+
+           pieChart.slices = listOf(
+                PieChart.Slice(t.toFloat(), Color.GREEN),
+                PieChart.Slice(b, Color.YELLOW),
+                PieChart.Slice(f.toFloat(), Color.RED),
+            )
+            raitingbar.visible()
+            raitingbar.numStars=arrayList.size-1
+            raitingbar.rating=trueanswer.toFloat()-1
+
         }
     }
 
@@ -110,6 +135,7 @@ class MainActivity : AppCompatActivity() {
         falseanswer=0
         binding.apply {
             linearlay1.visible()
+            pieChart.gone()
             textviewnext.text="next"
             textviewtrueorfalseanswer.gone()
         }
@@ -152,5 +178,10 @@ class MainActivity : AppCompatActivity() {
             textviewoption4.background=ContextCompat.getDrawable(this@MainActivity,R.drawable.background_transparent)
         }
     }
+
+
+
+    //true 4        all=true+false  =100%
+    //false 2       true     --- x
 
 }
